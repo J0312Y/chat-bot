@@ -5,36 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChatBot IA</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 </head>
 <body>
-    <div class="chat-container">
-        <header class="chat-header">
-            <div class="header-top">
-                <h1>ChatBot IA</h1>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Conversations</h2>
+                <button id="newConvBtn" class="btn-new-conv" title="Nouvelle conversation">+</button>
+            </div>
+            <div class="conv-list" id="convList"></div>
+            <div class="sidebar-footer">
                 <div class="user-info">
                     <span id="usernameDisplay"></span>
                     <button id="logoutBtn" class="btn-logout">Deconnexion</button>
                 </div>
             </div>
-            <p>Propulse par Claude</p>
-        </header>
-        <div class="chat-messages" id="chatMessages">
-            <div class="message assistant">
-                <div class="message-content">
-                    Bonjour ! Je suis votre assistant IA. Comment puis-je vous aider ?
+        </aside>
+
+        <!-- Chat -->
+        <main class="chat-container">
+            <header class="chat-header">
+                <div class="header-top">
+                    <button id="toggleSidebar" class="btn-toggle-sidebar">&#9776;</button>
+                    <h1>ChatBot IA</h1>
+                    <div class="header-actions">
+                        <button id="exportBtn" class="btn-export" title="Exporter">&#8615; Export</button>
+                    </div>
+                </div>
+                <p>Propulse par Claude</p>
+            </header>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message assistant">
+                    <div class="message-content">
+                        Bonjour ! Je suis votre assistant IA. Comment puis-je vous aider ?
+                    </div>
                 </div>
             </div>
-        </div>
-        <form class="chat-input" id="chatForm">
-            <input
-                type="text"
-                id="userInput"
-                placeholder="Ecrivez votre message..."
-                autocomplete="off"
-                required
-            >
-            <button type="submit" id="sendBtn">Envoyer</button>
-        </form>
+            <form class="chat-input" id="chatForm">
+                <input
+                    type="text"
+                    id="userInput"
+                    placeholder="Ecrivez votre message..."
+                    autocomplete="off"
+                    required
+                >
+                <button type="submit" id="sendBtn">Envoyer</button>
+            </form>
+        </main>
     </div>
     <script src="/static/script.js"></script>
 </body>

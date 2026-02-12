@@ -1,9 +1,10 @@
+import json
 import os
 import secrets
 
 from anthropic import Anthropic
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, jsonify, session
+from flask import Flask, Response, render_template, request, jsonify, session
 
 from database import (
     init_db,
@@ -13,6 +14,8 @@ from database import (
     create_conversation,
     get_user_conversations,
     conversation_belongs_to_user,
+    delete_conversation,
+    update_conversation_title,
     save_message,
     get_messages,
 )
@@ -141,6 +144,17 @@ def new_conversation():
     return jsonify({"conversation_id": conv_id})
 
 
+@app.route("/conversations/<conv_id>", methods=["DELETE"])
+def remove_conversation(conv_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "Non connecte"}), 401
+    if not conversation_belongs_to_user(conv_id, user["id"]):
+        return jsonify({"error": "Conversation introuvable"}), 404
+    delete_conversation(conv_id)
+    return jsonify({"ok": True})
+
+
 @app.route("/conversations/<conv_id>/messages", methods=["GET"])
 def list_messages(conv_id):
     user = get_current_user()
@@ -152,7 +166,29 @@ def list_messages(conv_id):
     return jsonify({"messages": messages})
 
 
-# --- Chat ---
+@app.route("/conversations/<conv_id>/export", methods=["GET"])
+def export_conversation(conv_id):
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "Non connecte"}), 401
+    if not conversation_belongs_to_user(conv_id, user["id"]):
+        return jsonify({"error": "Conversation introuvable"}), 404
+
+    messages = get_messages(conv_id)
+    lines = []
+    for msg in messages:
+        prefix = "Vous" if msg["role"] == "user" else "Assistant"
+        lines.append(f"[{prefix}]\n{msg['content']}\n")
+
+    text = "\n".join(lines)
+    return Response(
+        text,
+        mimetype="text/plain",
+        headers={"Content-Disposition": f"attachment; filename=conversation-{conv_id[:8]}.txt"},
+    )
+
+
+# --- Chat (streaming) ---
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -171,7 +207,12 @@ def chat():
         create_conversation(conv_id, user["id"])
 
     save_message(conv_id, "user", user_message)
+
+    # Auto-title: use first message as conversation title
     history = get_messages(conv_id)
+    if len(history) == 1:
+        title = user_message[:50] + ("..." if len(user_message) > 50 else "")
+        update_conversation_title(conv_id, title)
 
     personalized_prompt = (
         SYSTEM_PROMPT
@@ -179,18 +220,26 @@ def chat():
         + "Tu peux utiliser son prenom pour personnaliser tes reponses."
     )
 
-    try:
-        response = client.messages.create(
-            model="claude-sonnet-4-5-20250929",
-            max_tokens=1024,
-            system=personalized_prompt,
-            messages=history,
-        )
-        reply = response.content[0].text
-        save_message(conv_id, "assistant", reply)
-        return jsonify({"reply": reply})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    def generate():
+        full_reply = []
+        try:
+            with client.messages.stream(
+                model="claude-sonnet-4-5-20250929",
+                max_tokens=1024,
+                system=personalized_prompt,
+                messages=history,
+            ) as stream:
+                for text in stream.text_stream:
+                    full_reply.append(text)
+                    yield f"data: {json.dumps({'text': text})}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+            return
+
+        save_message(conv_id, "assistant", "".join(full_reply))
+        yield "data: [DONE]\n\n"
+
+    return Response(generate(), mimetype="text/event-stream")
 
 
 if __name__ == "__main__":
