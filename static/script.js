@@ -3,7 +3,16 @@ const chatForm = document.getElementById("chatForm");
 const userInput = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 
-const conversationHistory = [];
+function getConversationId() {
+  let id = localStorage.getItem("conversation_id");
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem("conversation_id", id);
+  }
+  return id;
+}
+
+const conversationId = getConversationId();
 
 function addMessage(content, role) {
   const div = document.createElement("div");
@@ -35,13 +44,27 @@ function removeTyping() {
   if (el) el.remove();
 }
 
+async function loadHistory() {
+  try {
+    const res = await fetch(`/conversations/${conversationId}/messages`);
+    if (!res.ok) return;
+    const data = await res.json();
+    for (const msg of data.messages) {
+      addMessage(msg.content, msg.role);
+    }
+  } catch {
+    // Pas d'historique, on commence une nouvelle conversation
+  }
+}
+
+loadHistory();
+
 chatForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const text = userInput.value.trim();
   if (!text) return;
 
   addMessage(text, "user");
-  conversationHistory.push({ role: "user", content: text });
   userInput.value = "";
   sendBtn.disabled = true;
   showTyping();
@@ -50,7 +73,7 @@ chatForm.addEventListener("submit", async (e) => {
     const res = await fetch("/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: conversationHistory }),
+      body: JSON.stringify({ conversation_id: conversationId, message: text }),
     });
     const data = await res.json();
     removeTyping();
@@ -59,7 +82,6 @@ chatForm.addEventListener("submit", async (e) => {
       addMessage("Erreur : " + data.error, "assistant");
     } else {
       addMessage(data.reply, "assistant");
-      conversationHistory.push({ role: "assistant", content: data.reply });
     }
   } catch {
     removeTyping();
