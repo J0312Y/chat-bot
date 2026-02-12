@@ -2,7 +2,7 @@ import json
 import os
 import secrets
 
-from anthropic import Anthropic
+import requests as http_requests
 from dotenv import load_dotenv
 from flask import Flask, Response, render_template, request, jsonify, session
 
@@ -24,7 +24,9 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", secrets.token_hex(32))
-client = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "mistral")
 
 SYSTEM_PROMPT = """\
 Tu es un assistant IA polyvalent, intelligent et amical. Tu excelles dans 4 domaines :
@@ -188,7 +190,7 @@ def export_conversation(conv_id):
     )
 
 
-# --- Chat (streaming) ---
+# --- Chat (streaming via Ollama) ---
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -220,18 +222,36 @@ def chat():
         + "Tu peux utiliser son prenom pour personnaliser tes reponses."
     )
 
+    # Build Ollama messages format
+    ollama_messages = [{"role": "system", "content": personalized_prompt}]
+    for msg in history:
+        ollama_messages.append({"role": msg["role"], "content": msg["content"]})
+
     def generate():
         full_reply = []
         try:
-            with client.messages.stream(
-                model="claude-sonnet-4-5-20250929",
-                max_tokens=1024,
-                system=personalized_prompt,
-                messages=history,
-            ) as stream:
-                for text in stream.text_stream:
+            resp = http_requests.post(
+                f"{OLLAMA_BASE_URL}/api/chat",
+                json={"model": OLLAMA_MODEL, "messages": ollama_messages, "stream": True},
+                stream=True,
+                timeout=120,
+            )
+            resp.raise_for_status()
+
+            for line in resp.iter_lines():
+                if not line:
+                    continue
+                chunk = json.loads(line)
+                if chunk.get("done"):
+                    break
+                text = chunk.get("message", {}).get("content", "")
+                if text:
                     full_reply.append(text)
                     yield f"data: {json.dumps({'text': text})}\n\n"
+
+        except http_requests.ConnectionError:
+            yield f"data: {json.dumps({'error': 'Impossible de se connecter a Ollama. Verifiez qu Ollama est lance (ollama serve).'})}\n\n"
+            return
         except Exception as e:
             yield f"data: {json.dumps({'error': str(e)})}\n\n"
             return
