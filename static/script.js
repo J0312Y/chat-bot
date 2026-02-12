@@ -2,6 +2,8 @@ const chatMessages = document.getElementById("chatMessages");
 const chatForm = document.getElementById("chatForm");
 const userInput = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
+const usernameDisplay = document.getElementById("usernameDisplay");
+const logoutBtn = document.getElementById("logoutBtn");
 
 function getConversationId() {
   let id = localStorage.getItem("conversation_id");
@@ -13,6 +15,30 @@ function getConversationId() {
 }
 
 const conversationId = getConversationId();
+
+// Load current user info
+async function loadUser() {
+  try {
+    const res = await fetch("/auth/me");
+    if (!res.ok) {
+      window.location.href = "/";
+      return;
+    }
+    const data = await res.json();
+    usernameDisplay.textContent = data.username;
+  } catch {
+    window.location.href = "/";
+  }
+}
+
+loadUser();
+
+// Logout
+logoutBtn.addEventListener("click", async () => {
+  await fetch("/auth/logout", { method: "POST" });
+  localStorage.removeItem("conversation_id");
+  window.location.href = "/";
+});
 
 function addMessage(content, role) {
   const div = document.createElement("div");

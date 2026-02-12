@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatBot IA - Connexion</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <header class="chat-header">
+            <h1>ChatBot IA</h1>
+            <p>Propulse par Claude</p>
+        </header>
+
+        <div class="auth-form">
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Connexion</button>
+                <button class="auth-tab" data-tab="register">Inscription</button>
+            </div>
+
+            <form id="loginForm" class="auth-panel active">
+                <input type="text" id="loginUsername" placeholder="Nom d'utilisateur" required>
+                <input type="password" id="loginPassword" placeholder="Mot de passe" required>
+                <button type="submit">Se connecter</button>
+                <p class="auth-error" id="loginError"></p>
+            </form>
+
+            <form id="registerForm" class="auth-panel">
+                <input type="text" id="registerUsername" placeholder="Nom d'utilisateur" required>
+                <input type="password" id="registerPassword" placeholder="Mot de passe (6 car. min)" required>
+                <button type="submit">Creer un compte</button>
+                <p class="auth-error" id="registerError"></p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll(".auth-tab");
+        const panels = document.querySelectorAll(".auth-panel");
+
+        tabs.forEach((tab) => {
+            tab.addEventListener("click", () => {
+                tabs.forEach((t) => t.classList.remove("active"));
+                panels.forEach((p) => p.classList.remove("active"));
+                tab.classList.add("active");
+                document.getElementById(tab.dataset.tab + "Form").classList.add("active");
+            });
+        });
+
+        async function handleAuth(url, username, password, errorEl) {
+            errorEl.textContent = "";
+            try {
+                const res = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password }),
+                });
+                const data = await res.json();
+                if (data.error) {
+                    errorEl.textContent = data.error;
+                } else {
+                    window.location.href = "/";
+                }
+            } catch {
+                errorEl.textContent = "Erreur de connexion au serveur.";
+            }
+        }
+
+        document.getElementById("loginForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            handleAuth(
+                "/auth/login",
+                document.getElementById("loginUsername").value,
+                document.getElementById("loginPassword").value,
+                document.getElementById("loginError")
+            );
+        });
+
+        document.getElementById("registerForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            handleAuth(
+                "/auth/register",
+                document.getElementById("registerUsername").value,
+                document.getElementById("registerPassword").value,
+                document.getElementById("registerError")
+            );
+        });
+    </script>
+</body>
+</html>
