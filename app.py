@@ -250,7 +250,7 @@ def chat():
                     yield f"data: {json.dumps({'text': text})}\n\n"
 
         except http_requests.ConnectionError:
-            yield f"data: {json.dumps({'error': 'Impossible de se connecter a Ollama. Verifiez qu Ollama est lance (ollama serve).'})}\n\n"
+            yield f"data: {json.dumps({'error': 'Impossible de se connecter a Ollama. Lancez ollama serve dans un terminal.'})}\n\n"
             return
         except Exception as e:
             yield f"data: {json.dumps({'error': str(e)})}\n\n"

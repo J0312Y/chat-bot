@@ -3,36 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatBot IA - Connexion</title>
+    <title>NovAI - Assistant IA</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
-    <div class="auth-container">
-        <header class="chat-header">
-            <div class="auth-logo">&#10024;</div>
-            <h1>ChatBot IA</h1>
-            <p>Propulse par Claude</p>
-        </header>
-
-        <div class="auth-form">
-            <div class="auth-tabs">
-                <button class="auth-tab active" data-tab="login">Connexion</button>
-                <button class="auth-tab" data-tab="register">Inscription</button>
+<body class="auth-body">
+    <div class="auth-page">
+        <!-- Left: Branding -->
+        <div class="auth-branding">
+            <div class="auth-branding-content">
+                <div class="brand-logo">
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                        <rect width="40" height="40" rx="12" fill="url(#logo-grad)"/>
+                        <path d="M12 20C12 15 16 11 20 11C24 11 28 15 28 20" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M16 24C16 21 18 19 20 19C22 19 24 21 24 24" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                        <circle cx="20" cy="28" r="2" fill="white"/>
+                        <defs>
+                            <linearGradient id="logo-grad" x1="0" y1="0" x2="40" y2="40">
+                                <stop stop-color="#6366f1"/>
+                                <stop offset="1" stop-color="#8b5cf6"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span class="brand-name">NovAI</span>
+                </div>
+                <h1 class="auth-headline">Votre assistant IA,<br>toujours disponible.</h1>
+                <p class="auth-subline">Discutez, apprenez, codez et organisez votre quotidien avec une IA intelligente et personnalisable.</p>
+                <div class="auth-features">
+                    <div class="auth-feature">
+                        <div class="feature-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        </div>
+                        <div>
+                            <strong>Conversations naturelles</strong>
+                            <p>Dialoguez comme avec un humain, en francais ou d'autres langues.</p>
+                        </div>
+                    </div>
+                    <div class="auth-feature">
+                        <div class="feature-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                        </div>
+                        <div>
+                            <strong>Aide au code</strong>
+                            <p>Debugging, generation de code et explications techniques.</p>
+                        </div>
+                    </div>
+                    <div class="auth-feature">
+                        <div class="feature-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                        </div>
+                        <div>
+                            <strong>Apprentissage adapte</strong>
+                            <p>Explications pedagogiques adaptees a votre niveau.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
 
-            <form id="loginForm" class="auth-panel active">
-                <input type="text" id="loginUsername" placeholder="Nom d'utilisateur" required>
-                <input type="password" id="loginPassword" placeholder="Mot de passe" required>
-                <button type="submit">Se connecter</button>
-                <p class="auth-error" id="loginError"></p>
-            </form>
+        <!-- Right: Auth form -->
+        <div class="auth-form-side">
+            <div class="auth-card">
+                <div class="auth-card-header">
+                    <h2>Bienvenue</h2>
+                    <p>Connectez-vous ou creez un compte pour commencer</p>
+                </div>
 
-            <form id="registerForm" class="auth-panel">
-                <input type="text" id="registerUsername" placeholder="Nom d'utilisateur" required>
-                <input type="password" id="registerPassword" placeholder="Mot de passe (6 car. min)" required>
-                <button type="submit">Creer un compte</button>
-                <p class="auth-error" id="registerError"></p>
-            </form>
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">Connexion</button>
+                    <button class="auth-tab" data-tab="register">Inscription</button>
+                </div>
+
+                <form id="loginForm" class="auth-panel active">
+                    <div class="input-group">
+                        <label for="loginUsername">Nom d'utilisateur</label>
+                        <div class="input-wrapper">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <input type="text" id="loginUsername" placeholder="Entrez votre nom" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="loginPassword">Mot de passe</label>
+                        <div class="input-wrapper">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            <input type="password" id="loginPassword" placeholder="Entrez votre mot de passe" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-auth">Se connecter</button>
+                    <p class="auth-error" id="loginError"></p>
+                </form>
+
+                <form id="registerForm" class="auth-panel">
+                    <div class="input-group">
+                        <label for="registerUsername">Nom d'utilisateur</label>
+                        <div class="input-wrapper">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <input type="text" id="registerUsername" placeholder="Choisissez un nom" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="registerPassword">Mot de passe</label>
+                        <div class="input-wrapper">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            <input type="password" id="registerPassword" placeholder="6 caracteres minimum" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-auth">Creer mon compte</button>
+                    <p class="auth-error" id="registerError"></p>
+                </form>
+            </div>
+            <p class="auth-footer-text">Propulse par Ollama &middot; 100% local et gratuit</p>
         </div>
     </div>
 
