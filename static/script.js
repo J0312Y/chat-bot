@@ -76,9 +76,15 @@ logoutBtn.addEventListener("click", async () => {
 
 // --- Sidebar ---
 
+function isMobile() {
+  return window.innerWidth <= 768;
+}
+
 function openSidebar() {
   sidebar.classList.remove("hidden");
-  sidebarOverlay.classList.add("active");
+  if (isMobile()) {
+    sidebarOverlay.classList.add("active");
+  }
 }
 
 function closeSidebar() {
