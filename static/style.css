@@ -81,6 +81,7 @@ body {
     flex-direction: column;
     border-right: 1px solid var(--border);
     transition: margin-left 0.3s ease, opacity 0.3s ease;
+    overflow: hidden;
 }
 
 .sidebar.hidden {
@@ -130,7 +131,21 @@ body {
 .conv-list {
     flex: 1;
     overflow-y: auto;
+    overscroll-behavior: contain;
     padding: 8px;
+}
+
+.conv-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.conv-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-full);
+}
+
+.conv-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
 }
 
 .conv-item {
