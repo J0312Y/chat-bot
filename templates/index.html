@@ -20,7 +20,10 @@
             <div class="conv-list" id="convList"></div>
             <div class="sidebar-footer">
                 <div class="user-info">
-                    <span id="usernameDisplay"></span>
+                    <div class="user-info-left">
+                        <div class="user-avatar-small" id="userAvatarSmall"></div>
+                        <span id="usernameDisplay"></span>
+                    </div>
                     <button id="logoutBtn" class="btn-logout">Deconnexion</button>
                 </div>
             </div>
@@ -39,10 +42,10 @@
                 <p>Propulse par Claude</p>
             </header>
             <div class="chat-messages" id="chatMessages">
-                <div class="message assistant">
-                    <div class="message-content">
-                        Bonjour ! Je suis votre assistant IA. Comment puis-je vous aider ?
-                    </div>
+                <div class="welcome-section">
+                    <div class="welcome-icon">&#10024;</div>
+                    <h2>Bienvenue !</h2>
+                    <p>Je suis votre assistant IA. Posez-moi une question, demandez de l'aide ou discutons simplement.</p>
                 </div>
             </div>
             <form class="chat-input" id="chatForm">

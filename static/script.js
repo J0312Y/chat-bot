@@ -3,6 +3,7 @@ const chatForm = document.getElementById("chatForm");
 const userInput = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 const usernameDisplay = document.getElementById("usernameDisplay");
+const userAvatarSmall = document.getElementById("userAvatarSmall");
 const logoutBtn = document.getElementById("logoutBtn");
 const sidebar = document.getElementById("sidebar");
 const convList = document.getElementById("convList");
@@ -11,6 +12,7 @@ const toggleSidebar = document.getElementById("toggleSidebar");
 const exportBtn = document.getElementById("exportBtn");
 
 let currentConvId = null;
+let currentUsername = "";
 
 // --- Markdown setup ---
 
@@ -28,6 +30,10 @@ function renderMarkdown(text) {
   return marked.parse(text);
 }
 
+function getInitial(name) {
+  return name ? name.charAt(0).toUpperCase() : "?";
+}
+
 // --- Auth ---
 
 async function loadUser() {
@@ -38,7 +44,9 @@ async function loadUser() {
       return;
     }
     const data = await res.json();
+    currentUsername = data.username;
     usernameDisplay.textContent = data.username;
+    userAvatarSmall.textContent = getInitial(data.username);
   } catch {
     window.location.href = "/";
   }
@@ -64,10 +72,14 @@ async function loadConversations() {
     const item = document.createElement("div");
     item.className = `conv-item${conv.id === currentConvId ? " active" : ""}`;
     item.innerHTML = `
+      <div class="conv-item-icon">\u{1F4AC}</div>
       <span class="conv-item-title">${escapeHtml(conv.title)}</span>
       <button class="conv-item-delete" title="Supprimer">&times;</button>
     `;
     item.querySelector(".conv-item-title").addEventListener("click", () => {
+      switchConversation(conv.id);
+    });
+    item.querySelector(".conv-item-icon").addEventListener("click", () => {
       switchConversation(conv.id);
     });
     item.querySelector(".conv-item-delete").addEventListener("click", async (e) => {
@@ -102,20 +114,27 @@ async function switchConversation(convId) {
 
 function clearChat() {
   chatMessages.innerHTML = `
-    <div class="message assistant">
-      <div class="message-content">
-        Bonjour ! Je suis votre assistant IA. Comment puis-je vous aider ?
-      </div>
+    <div class="welcome-section">
+      <div class="welcome-icon">\u{2728}</div>
+      <h2>Bienvenue !</h2>
+      <p>Je suis votre assistant IA. Posez-moi une question, demandez de l'aide ou discutons simplement.</p>
     </div>`;
 }
 
 function addMessage(content, role) {
+  // Remove welcome section if present
+  const welcome = chatMessages.querySelector(".welcome-section");
+  if (welcome) welcome.remove();
+
   const div = document.createElement("div");
   div.className = `message ${role}`;
+
+  const avatar = `<div class="message-avatar">${role === "user" ? getInitial(currentUsername) : "\u{2728}"}</div>`;
+
   if (role === "assistant") {
-    div.innerHTML = `<div class="message-content">${renderMarkdown(content)}</div>`;
+    div.innerHTML = `${avatar}<div class="message-content">${renderMarkdown(content)}</div>`;
   } else {
-    div.innerHTML = `<div class="message-content">${escapeHtml(content)}</div>`;
+    div.innerHTML = `${avatar}<div class="message-content">${escapeHtml(content)}</div>`;
   }
   chatMessages.appendChild(div);
   chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -123,9 +142,13 @@ function addMessage(content, role) {
 }
 
 function createStreamingMessage() {
+  // Remove welcome section if present
+  const welcome = chatMessages.querySelector(".welcome-section");
+  if (welcome) welcome.remove();
+
   const div = document.createElement("div");
   div.className = "message assistant";
-  div.innerHTML = `<div class="message-content"></div>`;
+  div.innerHTML = `<div class="message-avatar">\u{2728}</div><div class="message-content"></div>`;
   chatMessages.appendChild(div);
   return div.querySelector(".message-content");
 }
@@ -140,7 +163,7 @@ function showTyping() {
   const div = document.createElement("div");
   div.className = "message assistant";
   div.id = "typingIndicator";
-  div.innerHTML = `<div class="typing-indicator">
+  div.innerHTML = `<div class="message-avatar">\u{2728}</div><div class="typing-indicator">
     <span></span><span></span><span></span>
   </div>`;
   chatMessages.appendChild(div);
